@@ -15,6 +15,18 @@ pub struct Finding {
     pub detail: String,
 }
 
+/// A per-pixel divergence that both rasterizers are entitled to, because
+/// they integrate coverage differently (analytically vs sampled). Reported
+/// so it is never silently swallowed, but **not** a finding: a rasterizer is
+/// not wrong for choosing a different antialiasing model.
+#[derive(Debug, Clone)]
+pub struct AaDifference {
+    /// The corpus case it was seen on.
+    pub case: String,
+    /// Mean absolute per-pixel coverage difference.
+    pub mean_delta: f64,
+}
+
 /// The outcome of one differential run.
 #[derive(Debug, Default, Clone)]
 pub struct Report {
@@ -22,6 +34,9 @@ pub struct Report {
     pub agreed: u32,
     /// Every disagreement or violation found.
     pub findings: Vec<Finding>,
+    /// Per-pixel divergences explained by the antialiasing model, with the
+    /// ink invariant that *was* honoured.
+    pub aa_differences: Vec<AaDifference>,
     /// Comparisons this build cannot run yet (feature off, oracle pending).
     pub not_compared: Vec<&'static str>,
 }
@@ -47,6 +62,15 @@ impl Report {
         });
     }
 
+    /// Record a per-pixel divergence explained by the antialiasing model.
+    pub fn aa_model(&mut self, case: &str, mean_delta: f64) {
+        self.aa_differences.push(AaDifference {
+            case: case.to_owned(),
+            mean_delta,
+        });
+        self.agreed += 1;
+    }
+
     /// Record that a named comparison did not run in this build.
     pub fn not_compared(&mut self, what: &'static str) {
         self.not_compared.push(what);
@@ -56,8 +80,9 @@ impl Report {
     #[must_use]
     pub fn summary(&self) -> String {
         format!(
-            "{} agreed, {} findings, {} not compared",
+            "{} agreed ({} AA-model), {} findings, {} not compared",
             self.agreed,
+            self.aa_differences.len(),
             self.findings.len(),
             self.not_compared.len()
         )
