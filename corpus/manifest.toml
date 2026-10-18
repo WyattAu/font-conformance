@@ -1,0 +1,52 @@
+# font-conformance corpus manifest — the registry of fetched fonts.
+#
+# FCN-001: real fonts are fetched at run time from these entries and verified
+# against their SHA-256 before a differential run trusts them. **No font bytes
+# are committed to this repository** — the hostile synthetic corpus lives in
+# `src/hostile.rs` as code, and everything here is fetched.
+#
+# Entries below are templates: fill in `sha256` by running
+#   python3 scripts/fetch_corpus.py init
+# which downloads each entry once, prints its hash, and leaves the file in the
+# cache. A run with a wrong or missing hash is a red run, never a skip.
+#
+# Licensing rule: SIL OFL only. Every entry carries its license URL so the
+# attestation is self-contained.
+
+schema = 1
+
+# Template — uncomment and complete via `scripts/fetch_corpus.py init`:
+#
+# [[font]]
+# name = "NotoSans-Regular"
+# url = "https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSans/hinted/ttf/NotoSans-Regular.ttf"
+# sha256 = ""
+# license = "OFL-1.1"
+# license_url = "https://openfontlicense.org"
+# tags = ["sans", "latin", "gpos-kern"]
+#
+# [[font]]
+# name = "NotoSerif-Regular"
+# url = "https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSerif/hinted/ttf/NotoSerif-Regular.ttf"
+# sha256 = ""
+# license = "OFL-1.1"
+# license_url = "https://openfontlicense.org"
+# tags = ["serif", "latin", "gpos-kern"]
+#
+# Arabic (RTL shaping input for the font-compose differential):
+# [[font]]
+# name = "NotoSansArabic-Regular"
+# url = "https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSansArabic/hinted/ttf/NotoSansArabic-Regular.ttf"
+# sha256 = ""
+# license = "OFL-1.1"
+# license_url = "https://openfontlicense.org"
+# tags = ["sans", "arabic", "rtl", "gpos-mark"]
+#
+# Variable font (fvar/avar exercise, FCO-003):
+# [[font]]
+# name = "NotoSans-WdthWght-VF"
+# url = "https://raw.githubusercontent.com/notofonts/notofonts.github.io/main/fonts/NotoSans/hinted/variable-ttf/NotoSans\[wdth,wght\].ttf"
+# sha256 = ""
+# license = "OFL-1.1"
+# license_url = "https://openfontlicense.org"
+# tags = ["sans", "variable", "fvar"]

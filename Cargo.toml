@@ -1,0 +1,49 @@
+[package]
+name = "font-conformance"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+authors = ["Wyatt Au <wyatt_au@protonmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/WyattAu/font-conformance"
+description = "Independent differential oracle for the estate text stack: font-parse vs fontations, font-shape vs the rival rasterizers, Err-not-panic over a hostile corpus"
+keywords = ["font", "conformance", "differential", "testing", "oracle"]
+categories = ["development-tools::testing"]
+# Dev-only oracle suite (spec §Field table): nothing in the estate may depend
+# on it at runtime. Unpublished for now; flip when the estate.yml entry lands.
+publish = false
+
+[package.metadata.layers]
+tier = "L3"
+
+[features]
+default = []
+# Rival oracles, one feature per supply chain. The estate stack under test is
+# never feature-gated; only the comparators are. zeno and vello_cpu join the
+# same way once their differential is wired (spec FCN-003 roadmap).
+rival-fontations = ["dep:read-fonts"]
+rival-tiny-skia = ["dep:tiny-skia"]
+
+[dependencies]
+# The stack under test. Path deps for the scaffold so the suite always measures
+# repo HEAD; switch to registry pins at first publish (see README).
+font-parse = { path = "../font-parse" }
+font-model = { path = "../font-model" }
+font-shape = { path = "../font-shape" }
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+toml = "1"
+read-fonts = { version = "0.45", optional = true }
+tiny-skia = { version = "0.12", default-features = false, features = ["std"], optional = true }
+
+[lints.rust]
+missing_docs = "deny"
+unsafe_code = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+indexing_slicing = "deny"
+undocumented_unsafe_blocks = "deny"

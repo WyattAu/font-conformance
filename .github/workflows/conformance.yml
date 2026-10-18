@@ -1,0 +1,47 @@
+# FCN-006: PR smoke (hostile set, default features, minutes) + nightly deep
+# (attested corpus + all rival features).
+#
+# NOTE before first real push: the estate gate owns action pins — replace the
+# floating tags with the estate's one-SHA-per-action pins (check-pin-consistency),
+# and swap this hand-rolled workflow for the shared rust-kit.yml template if
+# the template covers the matrix. Until then this file is the canonical runner
+# for THIS repo.
+
+name: conformance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Nightly deep run, off the PR critical path (burin-doc fuzz.yml pattern).
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  smoke:
+    # PR smoke: hostile corpus only (committed code), default features, no
+    # network, no corpus cache required.
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: cargo test --locked
+      - run: cargo clippy --locked -- -D warnings
+
+  deep:
+    # Nightly deep: fetch + attest the corpus, then every rival differential.
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 scripts/fetch_corpus.py fetch
+      - run: cargo test --locked --all-features
+      - run: cargo clippy --locked --all-features -- -D warnings
+      # Deep flag turns on the million-point subpath.
+      - run: FONT_CONFORMANCE_DEEP=1 cargo test --locked --all-features --test panic_smoke -- --nocapture
